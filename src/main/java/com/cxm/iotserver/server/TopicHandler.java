@@ -3,8 +3,14 @@ package com.cxm.iotserver.server;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.openservices.iot.api.message.entity.Message;
-import com.cxm.iotserver.websocket.ResultData;
+import com.aliyuncs.iot.model.v20180120.QueryDeviceDetailResponse;
+import com.cxm.iot.api.sdk.openapi.DeviceManager;
+import com.cxm.iot.client.LinkkitSubClient;
+
+import com.cxm.iotserver.websocket.datadto.DevicePropertyDTO;
 import com.cxm.iotserver.websocket.WebSocketServer;
+import com.cxm.iotserver.websocket.datadto.CommonDataDTO;
+import com.cxm.iotserver.websocket.datadto.DeviceStatusDTO;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -46,7 +52,7 @@ class DevicePropertyHandler{
     }
     public void paseMessage(){
         System.out.println("设备属性上报 : " + message);
-        ResultData data = new ResultData();
+        CommonDataDTO data = new DevicePropertyDTO();
         JSONObject connectJson = JSON.parseObject(new String(message.getPayload()));
 
         String iotId = connectJson.getString("iotId");
@@ -55,25 +61,25 @@ class DevicePropertyHandler{
         data.setIotId(iotId);
         if(items.getJSONObject("OutputVoltage")!=null){
             JSONObject outputVoltage = items.getJSONObject("OutputVoltage");
-            data.setOutputVoltage(outputVoltage.getString("value"));
-            data.setVoltageTime(TopicHandler.paseLongDate(outputVoltage.getString("time")));
+            ((DevicePropertyDTO) data).setOutputVoltage(outputVoltage.getString("value"));
+            ((DevicePropertyDTO) data).setVoltageTime(TopicHandler.paseLongDate(outputVoltage.getString("time")));
         }
         if(items.getJSONObject("CurrentTemperature")!=null){
             JSONObject currentTemperature = items.getJSONObject("CurrentTemperature");
-            data.setCurrentTemperature(currentTemperature.getString("value"));
-            data.setTemperatureTime(TopicHandler.paseLongDate(currentTemperature.getString("time")));
+            ((DevicePropertyDTO) data).setCurrentTemperature(currentTemperature.getString("value"));
+            ((DevicePropertyDTO) data).setTemperatureTime(TopicHandler.paseLongDate(currentTemperature.getString("time")));
         }
         if(items.getJSONObject("PowerStatus")!=null){
             JSONObject powerStatus = items.getJSONObject("PowerStatus");
-            data.setPowerStatus(powerStatus.getString("value"));
-            data.setPowerTime(TopicHandler.paseLongDate(powerStatus.getString("time")));
+            ((DevicePropertyDTO) data).setPowerStatus(powerStatus.getString("value"));
+            ((DevicePropertyDTO) data).setPowerTime(TopicHandler.paseLongDate(powerStatus.getString("time")));
         }
         if(items.getJSONObject("OutputCurrent")!=null){
             JSONObject outputCurrent = items.getJSONObject("OutputCurrent");
-            data.setOutputElectricity(outputCurrent.getString("value"));
-            data.setElectricityTime(TopicHandler.paseLongDate(outputCurrent.getString("time")));
+            ((DevicePropertyDTO) data).setOutputElectricity(outputCurrent.getString("value"));
+            ((DevicePropertyDTO) data).setElectricityTime(TopicHandler.paseLongDate(outputCurrent.getString("time")));
         }
-
+        data.setType("deviceProperty");
         SubscriptionMessage.sendDataQueue.offer(data);
 //        WebSocketServer.sendMessage(iotId,data);
     }
@@ -87,13 +93,26 @@ class DeviceStatusHandler{
     }
     public void paseMessage(){
         System.out.println("设备上下线状态上报 : " + message);
-//        ResultData data = new ResultData();
-//        JSONObject connectJson = JSON.parseObject(new String(message.getPayload()));
-//
-//        String iotId = connectJson.getString("iotId");
-//        JSONObject items = connectJson.getJSONObject("items");
+
+        JSONObject connectJson = JSON.parseObject(new String(message.getPayload()));
+
+        String productKey = connectJson.getString("productKey");
+        String deviceName = connectJson.getString("deviceName");
+
+        QueryDeviceDetailResponse.Data data = DeviceManager.queryDeviceDetail("", productKey, deviceName);
 
 
-//        WebSocketServer.sendMessage(iotId,data);
+        CommonDataDTO commonDataDTO = new DeviceStatusDTO();
+        commonDataDTO.setIotId(data.getIotId());
+        ((DeviceStatusDTO) commonDataDTO).setStatus(connectJson.getString("status").toUpperCase());
+        commonDataDTO.setType("deviceStatus");
+
+        SubscriptionMessage.sendDataQueue.offer(commonDataDTO);
+
+
+        LinkkitSubClient.deviceLinkkitClient(productKey,deviceName,data.getDeviceSecret());
+
+
+//        WebSocketServer.sendMessage(commonDataDTO);
     }
 }

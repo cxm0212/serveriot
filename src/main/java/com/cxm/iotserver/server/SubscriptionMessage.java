@@ -1,22 +1,16 @@
 package com.cxm.iotserver.server;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.aliyun.openservices.iot.api.message.api.MessageClient;
 import com.aliyun.openservices.iot.api.message.callback.MessageCallback;
 import com.aliyun.openservices.iot.api.message.entity.Message;
-import com.aliyun.openservices.iot.api.message.entity.MessageToken;
 import com.cxm.iot.api.sdk.openapi.AbstractManager;
-import com.cxm.iotserver.websocket.ResultData;
+import com.cxm.iotserver.websocket.datadto.CommonDataDTO;
+import com.cxm.iotserver.websocket.datadto.DevicePropertyDTO;
 import com.cxm.iotserver.websocket.WebSocketServer;
-import com.google.gson.JsonObject;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -50,10 +44,10 @@ public class SubscriptionMessage implements ApplicationRunner {
 
 
         while (true){
-            ResultData data = (ResultData) sendDataQueue.poll();
+            CommonDataDTO data = (CommonDataDTO) sendDataQueue.poll();
             if(data!=null)WebSocketServer.sendMessage(data);
             try {
-                Thread.sleep((long) 0.01);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

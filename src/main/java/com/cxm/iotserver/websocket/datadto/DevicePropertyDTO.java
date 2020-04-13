@@ -1,4 +1,4 @@
-package com.cxm.iotserver.websocket;
+package com.cxm.iotserver.websocket.datadto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 
 @Getter @Setter
-public class ResultData {
+public class DevicePropertyDTO extends CommonDataDTO{
 
     private String iotId;
     private String OutputVoltage;
@@ -24,3 +24,6 @@ public class ResultData {
 
 
 }
+
+
+

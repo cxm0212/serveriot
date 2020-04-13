@@ -1,18 +1,14 @@
 package com.cxm.iotserver.websocket;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.aliyun.openservices.iot.api.message.entity.Message;
 import com.cxm.iotserver.util.PrintWriterUtil;
+import com.cxm.iotserver.websocket.datadto.CommonDataDTO;
+import com.cxm.iotserver.websocket.datadto.DevicePropertyDTO;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
-import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -125,7 +121,7 @@ public class WebSocketServer {
      * 服务器主动推送消息
      * @param
      */
-    public static void sendMessage(ResultData data) {
+    public static void sendMessage(CommonDataDTO data) {
         try {
             String iotId = data.getIotId();
             List<Session> sessions = null;

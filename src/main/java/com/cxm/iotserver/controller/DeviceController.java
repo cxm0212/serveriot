@@ -12,8 +12,7 @@ import com.cxm.iot.api.sdk.openapi.ProductManager;
 import com.cxm.iot.api.sdk.openapi.ThingModelManager;
 import com.cxm.iotserver.server.TopicHandler;
 import com.cxm.iotserver.util.PrintWriterUtil;
-import com.cxm.iotserver.websocket.ResultData;
-import com.cxm.iotserver.websocket.WebSocketServer;
+import com.cxm.iotserver.websocket.datadto.DevicePropertyDTO;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -123,7 +122,7 @@ public class DeviceController {
         List<QueryDevicePropertyDataResponse.Data.PropertyInfo> list3 = currentTemperature.getList();
         List<QueryDevicePropertyDataResponse.Data.PropertyInfo> list4 = powerStatus.getList();
 
-        ResultData data = new ResultData();
+        DevicePropertyDTO data = new DevicePropertyDTO();
         if(list.size()>0){
             data.setOutputVoltage(list.get(0).getValue());
             data.setVoltageTime(TopicHandler.paseLongDate(list.get(0).getTime()));
@@ -240,7 +239,12 @@ public class DeviceController {
     public static void main(String[] args) {
 
         JSONObject obj = new JSONObject();
-        obj.put("OutputVoltage",33);
+        obj.put("OutputVoltage",25);
+
+//        byte[] encode = Base64.getEncoder().encode(JSON.toJSONString(obj).getBytes());
+//        MessageBrokerManager.pub("a1ppUE8HllR","/a1ppUE8HllR/3pIi0cGStaWEgcBqYCUd/user/update",new String(encode),1);
+
+
         ThingModelManager.setDeviceProperty("3pIi0cGStaWEgcBqYCUd000100","a1ppUE8HllR","3pIi0cGStaWEgcBqYCUd",JSON.toJSONString(obj));
 //        String encode = Base64.getEncoder().encodeToString("dGhpcyBpcyBhbiBleGFtcGxl".getBytes());
 //        System.out.println(encode);
